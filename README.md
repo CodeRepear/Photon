@@ -109,29 +109,6 @@ All 23 image extensions are registered as Windows file-type associations — dou
 
 ---
 
-## 📸 Screenshots
-
-> Place screenshots in a `docs/screenshots/` folder at the repo root and reference them below. Suggested captures:
->
-> | File | Suggested subject |
-> |---|---|
-> | `docs/screenshots/gallery.png` | The justified gallery with date grouping and the navigation pane open. |
-> | `docs/screenshots/viewer.png` | The full-screen viewer with EXIF panel and filmstrip visible. |
-> | `docs/screenshots/editor-adjust.png` | The editor's Adjust tab with a few sliders moved off neutral. |
-> | `docs/screenshots/editor-filters.png` | The editor's Filters tab showing all 18 preset thumbnails. |
-> | `docs/screenshots/editor-crop.png` | The crop overlay with rule-of-thirds guides and 8 handles. |
-> | `docs/screenshots/secure-folder.png` | The Secure Folder lock screen (no sensitive content visible). |
-> | `docs/screenshots/ai-overlay.png` | The viewer with AI subject-detection bounding boxes. |
->
-> Embed them like this once the PNGs exist:
->
-> ```markdown
-> ### Gallery
-> ![Photon gallery](docs/screenshots/gallery.png)
-> ```
-
----
-
 ## 🚀 Getting Started
 
 ### Prerequisites
