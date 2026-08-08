@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Photon.Views.SettingsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Loaded="OnPageLoaded"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <ScrollViewer Padding="48,24,48,48" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel MaxWidth="800" Spacing="0">
+
+            <!-- Page title -->
+            <TextBlock Text="Settings" Style="{StaticResource TitleTextBlockStyle}" Margin="0,0,0,24"/>
+
+            <!-- Library folders -->
+            <TextBlock Text="Library folders" Style="{StaticResource SubtitleTextBlockStyle}" Margin="0,0,0,12"/>
+            <ListView x:Name="FolderList" IsItemClickEnabled="False" SelectionMode="None" Margin="0,0,0,8" MaxHeight="200">
+                <ListView.ItemTemplate>
+                    <DataTemplate x:DataType="x:String">
+                        <Grid Padding="0,6,0,6">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <SymbolIcon Grid.Column="0" Symbol="Folder" Margin="0,0,12,0" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="1" Text="{x:Bind}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                            <Button Grid.Column="2" Tag="{x:Bind}" Click="OnRemoveFolder" Padding="12,4,12,4" Margin="8,0,0,0" VerticalAlignment="Center">Remove</Button>
+                        </Grid>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+            <Button Content="+ Add folder" Click="OnAddFolder" Style="{StaticResource AccentButtonStyle}" Margin="0,0,0,32"/>
+
+            <!-- Appearance -->
+            <TextBlock Text="Appearance" Style="{StaticResource SubtitleTextBlockStyle}" Margin="0,0,0,12"/>
+            <StackPanel x:Name="ThemeRadio" Spacing="8" Margin="0,0,0,32">
+                <RadioButton Content="System" Tag="System" Checked="OnThemeChecked"/>
+                <RadioButton Content="Light"   Tag="Light"   Checked="OnThemeChecked"/>
+                <RadioButton Content="Dark"    Tag="Dark"    Checked="OnThemeChecked"/>
+            </StackPanel>
+
+            <!-- Gallery -->
+            <TextBlock Text="Gallery" Style="{StaticResource SubtitleTextBlockStyle}" Margin="0,0,0,12"/>
+            <Grid ColumnSpacing="16" Margin="0,0,0,12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="240"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="Default thumbnail size" VerticalAlignment="Center"/>
+                <ComboBox Grid.Column="1" x:Name="ThumbSizeCombo" HorizontalAlignment="Stretch" SelectionChanged="OnThumbSizeChanged">
+                    <ComboBoxItem Content="Small (80px)" Tag="0"/>
+                    <ComboBoxItem Content="Medium (120px)" Tag="1"/>
+                    <ComboBoxItem Content="Large (180px)" Tag="2"/>
+                    <ComboBoxItem Content="Extra Large (240px)" Tag="3"/>
+                </ComboBox>
+            </Grid>
+            <ToggleSwitch x:Name="SubfoldersToggle" Header="Include subfolders" Toggled="OnSubfoldersToggled" Margin="0,0,0,8"/>
+            <ToggleSwitch x:Name="VideoThumbsToggle" Header="Show video thumbnails" Toggled="OnVideoThumbsToggled" IsOn="True" Margin="0,0,0,32"/>
+
+            <!-- Performance -->
+            <TextBlock Text="Performance" Style="{StaticResource SubtitleTextBlockStyle}" Margin="0,0,0,12"/>
+
+            <Grid ColumnSpacing="12" Margin="0,0,0,16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="240"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="Thumbnail cache location" VerticalAlignment="Center"/>
+                <TextBox Grid.Column="1" x:Name="CachePathBox" IsReadOnly="True" VerticalAlignment="Center"/>
+                <Button Grid.Column="2" Content="Browse..." Click="OnChangeCacheFolder" VerticalAlignment="Center"/>
+                <Button Grid.Column="3" Content="Reset" Click="OnResetCacheFolder" VerticalAlignment="Center"/>
+            </Grid>
+            
+            <ToggleSwitch x:Name="BgThumbsToggle" Header="Background thumbnail generation" Toggled="OnBgThumbsToggled" IsOn="True" Margin="0,0,0,8"/>
+            <ToggleSwitch x:Name="GpuToggle" Header="GPU acceleration" Toggled="OnGpuToggled" IsOn="True" Margin="0,0,0,8"/>
+            <ToggleSwitch x:Name="PrefetchToggle" Header="Prefetch next/prev images" Toggled="OnPrefetchToggled" IsOn="True" Margin="0,0,0,16"/>
+            <Grid ColumnSpacing="16" Margin="0,0,0,32">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="240"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="Thumbnail cache limit" VerticalAlignment="Center"/>
+                <Slider Grid.Column="1" x:Name="CacheSlider" Minimum="1" Maximum="10" StepFrequency="0.5" ValueChanged="OnCacheChanged" VerticalAlignment="Center"/>
+                <TextBlock Grid.Column="2" x:Name="CacheLabel" VerticalAlignment="Center" Width="60" Margin="8,0,0,0"/>
+            </Grid>
+
+
+            <!-- About -->
+            <TextBlock Text="About" Style="{StaticResource SubtitleTextBlockStyle}" Margin="0,0,0,12"/>
+            <TextBlock Text="Photon v1.0.0" Margin="0,0,0,4"/>
+            <TextBlock Text="A modern photo &amp; media viewer for Windows 11."
+                       Foreground="{ThemeResource TextFillColorSecondaryBrush}" Margin="0,0,0,4"/>
+            <TextBlock Text="\u00a9 2025 princ" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Margin="0,0,0,24"/>
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>

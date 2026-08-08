@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Photon.Views.SlideshowPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Loaded="OnPageLoaded"
+    Unloaded="OnPageUnloaded"
+    Background="Black">
+
+    <Grid>
+        <Image
+            x:Name="CurrentImage"
+            Stretch="Uniform"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"/>
+
+        <!-- Bottom control bar (auto-hides) -->
+        <Border
+            x:Name="ControlBar"
+            VerticalAlignment="Bottom"
+            HorizontalAlignment="Center"
+            Margin="0,0,0,24"
+            Padding="12,6,12,6"
+            CornerRadius="24"
+            Background="#80000000"
+            BorderBrush="#40FFFFFF"
+            BorderThickness="1">
+            <StackPanel Orientation="Horizontal" Spacing="8">
+                <Button x:Name="PrevBtn" Background="Transparent" BorderThickness="0" Click="OnPrevClick">
+                    <TextBlock Text="◂" FontSize="16" Foreground="White" VerticalAlignment="Center"/>
+                </Button>
+                <Button x:Name="PlayPauseBtn" Background="Transparent" BorderThickness="0" Click="OnPlayPauseClick">
+                    <TextBlock x:Name="PlayPauseIcon" Text="❚❚" FontSize="12" Foreground="White" VerticalAlignment="Center"/>
+                </Button>
+                <Button x:Name="NextBtn" Background="Transparent" BorderThickness="0" Click="OnNextClick">
+                    <TextBlock Text="▸" FontSize="16" Foreground="White" VerticalAlignment="Center"/>
+                </Button>
+                <Button x:Name="ExitBtn" Background="Transparent" BorderThickness="0" Click="OnExitClick">
+                    <TextBlock Text="✕" FontSize="14" Foreground="White" VerticalAlignment="Center"/>
+                </Button>
+            </StackPanel>
+        </Border>
+
+        <TextBlock
+            x:Name="CounterLabel"
+            VerticalAlignment="Top"
+            HorizontalAlignment="Right"
+            Margin="0,16,16,0"
+            Foreground="#CCFFFFFF"
+            Style="{StaticResource CaptionTextBlockStyle}"/>
+    </Grid>
+</Page>

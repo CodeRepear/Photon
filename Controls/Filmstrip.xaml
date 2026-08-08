@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="Photon.Controls.Filmstrip"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <ScrollViewer
+        x:Name="Scroller"
+        HorizontalScrollBarVisibility="Hidden"
+        HorizontalScrollMode="Enabled"
+        VerticalScrollBarVisibility="Disabled"
+        VerticalScrollMode="Disabled"
+        IsHorizontalRailEnabled="True">
+        <StackPanel x:Name="Row" Orientation="Horizontal" Spacing="6"/>
+    </ScrollViewer>
+</UserControl>

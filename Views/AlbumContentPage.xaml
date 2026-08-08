@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Photon.Views.AlbumContentPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Loaded="OnPageLoaded" Unloaded="OnPageUnloaded">
+
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <CommandBar Grid.Row="0" DefaultLabelPosition="Right" HorizontalContentAlignment="Stretch" Margin="8,8,8,0">
+            <CommandBar.Content>
+                <StackPanel Orientation="Horizontal" Spacing="12" Margin="4,0,0,0">
+                    <Button Background="Transparent" BorderThickness="0" Click="OnBackClick" Width="40" Height="40" ToolTipService.ToolTip="Go back">
+                        <FontIcon Glyph="&#xE72B;" FontSize="16" FontFamily="{ThemeResource SymbolThemeFontFamily}"/>
+                    </Button>
+                    <TextBlock x:Name="AlbumTitle" Text="Album" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center"/>
+                </StackPanel>
+            </CommandBar.Content>
+        </CommandBar>
+
+        <ScrollViewer Grid.Row="1" x:Name="AlbumScroll" Padding="16,8,16,16" VerticalScrollBarVisibility="Auto" SizeChanged="OnScrollSizeChanged">
+            <StackPanel x:Name="AlbumRoot"/>
+        </ScrollViewer>
+
+        <Border x:Name="EmptyState" Grid.Row="1" Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <StackPanel Spacing="12" HorizontalAlignment="Center">
+                <TextBlock Text="&#x1F4C2;" FontSize="48" Foreground="{ThemeResource TextFillColorSecondaryBrush}" HorizontalAlignment="Center"/>
+                <TextBlock Text="This album is empty" Style="{StaticResource SubtitleTextBlockStyle}" HorizontalAlignment="Center"/>
+                <TextBlock Text="Add photos to this album from the gallery by right-clicking them." Foreground="{ThemeResource TextFillColorSecondaryBrush}" HorizontalAlignment="Center" TextWrapping="Wrap" MaxWidth="300"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Page>

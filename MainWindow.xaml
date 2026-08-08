@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window
+    x:Class="Photon.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Photon">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40"/>   <!-- 1) Title bar -->
+            <RowDefinition Height="*"/>    <!-- 2) Nav + 3) Frame -->
+        </Grid.RowDefinitions>
+
+        <!-- 1) TITLE BAR: spans the full width -->
+        <Grid x:Name="AppTitleBar" Grid.Row="0" Background="Transparent">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>   <!-- hamburger -->
+                <ColumnDefinition Width="Auto"/>   <!-- "Photon" title -->
+                <ColumnDefinition Width="*"/>      <!-- center content (search bar / filename) -->
+                <ColumnDefinition Width="140"/>    <!-- reserved: system min/max/close -->
+            </Grid.ColumnDefinitions>
+
+            <Button
+                x:Name="HamburgerButton"
+                Grid.Column="0"
+                Width="40" Height="40" Margin="5"
+                Background="Transparent"
+                BorderThickness="0"
+                Content="&#xE700;"
+                FontFamily="Segoe MDL2 Assets"
+                Click="OnHamburgerClick"/>
+
+            <TextBlock
+                x:Name="AppTitleText"
+                Grid.Column="1"
+                Text="Photon"
+                VerticalAlignment="Center"
+                Margin="4,0,0,0"
+                FontSize="14"/>
+
+            <ContentPresenter
+                x:Name="TitleCenterContainer"
+                Grid.Column="2"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                MaxWidth="600"/>
+        </Grid>
+
+        <!-- 2) NAV PANE + 3) FRAME: NavigationView provides both, side by side, in Row 1 -->
+        <NavigationView
+            x:Name="NavView"
+            Grid.Row="1"
+            PaneTitle=""
+            PaneDisplayMode="Left"
+            IsPaneOpen="False" 
+            IsPaneToggleButtonVisible="False"
+            IsTitleBarAutoPaddingEnabled="False"
+            IsBackButtonVisible="Collapsed"
+            IsSettingsVisible="True"
+            OpenPaneLength="220"
+            CompactModeThresholdWidth="640"
+            ExpandedModeThresholdWidth="1000"
+            SelectionChanged="OnNavSelectionChanged"
+            BackRequested="OnNavBackRequested"
+            Loaded="OnNavLoaded">
+
+            <NavigationView.MenuItems>
+                <NavigationViewItem Tag="Gallery" Icon="Pictures" Content="All Photos"/>
+                <NavigationViewItem Tag="Favorites" Icon="Favorite" Content="Favorites"/>
+                <NavigationViewItem Tag="Videos" Icon="Video" Content="Videos"/>
+                <NavigationViewItem Tag="Albums" Icon="Folder" Content="Albums"/>
+                <NavigationViewItem Tag="SecureFolder" Content="Secure Folder">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE72E;"/>
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+            </NavigationView.MenuItems>
+
+            <Frame x:Name="ContentFrame" Padding="0"/>
+        </NavigationView>
+    </Grid>
+</Window>

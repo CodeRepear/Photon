@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Application
+    x:Class="Photon.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <!-- Fluent type ramp overrides (Segoe UI Variable is default on Win11) -->
+            <x:Double x:Key="AppTitleFontSize">18</x:Double>
+            <x:Double x:Key="SectionHeaderFontSize">20</x:Double>
+            <Thickness x:Key="ContentMargin">16,16,16,16</Thickness>
+            <Thickness x:Key="CardPadding">12,12,12,12</Thickness>
+            <CornerRadius x:Key="ButtonCornerRadius">8</CornerRadius>
+            <CornerRadius x:Key="CardCornerRadius">12</CornerRadius>
+            <CornerRadius x:Key="ChipCornerRadius">4</CornerRadius>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

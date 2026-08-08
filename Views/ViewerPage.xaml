@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Photon.Views.ViewerPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:Photon.Controls"
+    Loaded="OnPageLoaded"
+    Unloaded="OnPageUnloaded"
+    Background="Black">
+
+    <Grid x:Name="RootGrid">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto" x:Name="FilmstripRow"/>
+            <RowDefinition Height="Auto" x:Name="InfoStripRow"/>
+        </Grid.RowDefinitions>
+
+        <!-- ============ MAIN IMAGE CANVAS (Row 0) ============ -->
+        <Grid Grid.Row="0" Tapped="OnCanvasTapped">
+            <Grid.Background>
+                <AcrylicBrush TintColor="Black" TintOpacity="0.65" FallbackColor="#B0000000"/>
+            </Grid.Background>
+            <MediaPlayerElement x:Name="VideoPlayer"
+                                Visibility="Visible"
+                                AutoPlay="True"
+                                AreTransportControlsEnabled="False"
+                                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+
+            <controls:ZoomCanvas x:Name="Zoom" Visibility="Collapsed"
+                                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+            <Image x:Name="AnimatedSurface" Visibility="Collapsed"
+                   Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+            <!--Back + Favourite Icons-->
+            <StackPanel x:Name="TopLeftBar" Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Left"
+                        Margin="16,16,0,0" Spacing="8">
+                <Border Tapped="OnBackTap" CornerRadius="20" Width="40" Height="40" BorderThickness="0"
+                        PointerEntered="OnChromePointerEnter" PointerExited="OnChromePointerExit">
+                    <Border.Background>
+                        <AcrylicBrush TintColor="Black" TintOpacity="0.4" FallbackColor="#80000000"/>
+                    </Border.Background>
+                    <FontIcon Glyph="&#xE72B;" FontSize="16" FontFamily="{ThemeResource SymbolThemeFontFamily}" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+
+                <Border x:Name="TopLeftActions" CornerRadius="20" Padding="4" BorderThickness="0"
+                        PointerEntered="OnChromePointerEnter" PointerExited="OnChromePointerExit">
+                    <Border.Background>
+                        <AcrylicBrush TintColor="Black" TintOpacity="0.4" FallbackColor="#80000000"/>
+                    </Border.Background>
+                    <StackPanel Orientation="Horizontal" Spacing="2">
+                        <!-- Edit with Text -->
+                        <Border Tapped="OnEditTap" Background="Transparent" CornerRadius="16" Height="36" Padding="12,0,12,0" PointerEntered="OnBtnEnter" PointerExited="OnBtnExit">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <FontIcon Glyph="&#xE70F;" FontSize="14" FontFamily="{ThemeResource SymbolThemeFontFamily}" Foreground="White"/>
+                                <TextBlock Text="Edit" VerticalAlignment="Center" Foreground="White" FontSize="13"/>
+                            </StackPanel>
+                        </Border>
+                        <!-- Favorite Icon Only -->
+                        <Border Tapped="OnFavoriteTap" Background="Transparent" CornerRadius="16" Width="36" Height="36" PointerEntered="OnBtnEnter" PointerExited="OnBtnExit">
+                            <FontIcon x:Name="FavIcon" Glyph="&#xE734;" FontSize="16" FontFamily="{ThemeResource SymbolThemeFontFamily}" Foreground="White"/>
+                        </Border>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+
+            <!-- Prev / Next -->
+            <Border x:Name="PrevButton" VerticalAlignment="Center" HorizontalAlignment="Left"
+                    Margin="16,0,0,0" Width="44" Height="44" CornerRadius="22" BorderThickness="0"
+                    Tapped="OnPrevTap"
+                    PointerEntered="OnNavPointerEnter" PointerExited="OnNavPointerExit">
+                <Border.Background>
+                    <AcrylicBrush TintColor="Black" TintOpacity="0.4" FallbackColor="#80000000"/>
+                </Border.Background>
+                <FontIcon Glyph="&#xE76B;" FontSize="18" FontFamily="{ThemeResource SymbolThemeFontFamily}" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Border>
+
+            <Border x:Name="NextButton" VerticalAlignment="Center" HorizontalAlignment="Right"
+                    Margin="0,0,16,0" Width="44" Height="44" CornerRadius="22" BorderThickness="0"
+                    Tapped="OnNextTap"
+                    PointerEntered="OnNavPointerEnter" PointerExited="OnNavPointerExit">
+                <Border.Background>
+                    <AcrylicBrush TintColor="Black" TintOpacity="0.4" FallbackColor="#80000000"/>
+                </Border.Background>
+                <FontIcon Glyph="&#xE76C;" FontSize="18" FontFamily="{ThemeResource SymbolThemeFontFamily}" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Border>
+
+            <!-- ============ BOTTOM TOOLBAR ============ -->
+            <Border x:Name="ActionToolbar"
+                    VerticalAlignment="Top" HorizontalAlignment="Right"
+                    Margin="0,16,16,0" CornerRadius="20" Padding="6,4,6,4" BorderThickness="0"
+                    PointerEntered="OnChromePointerEnter" PointerExited="OnChromePointerExit">
+                <Border.Background>
+                    <AcrylicBrush TintColor="Black" TintOpacity="0.4" FallbackColor="#80000000"/>
+                </Border.Background>
+                <StackPanel Orientation="Horizontal" Spacing="2">
+                    <!-- Info toggle, Save, Share, Slideshow, More -->
+                    <Border Width="36" Height="36" CornerRadius="18" Tapped="OnInfoToggleTap" Background="Transparent" PointerEntered="OnBtnEnter" PointerExited="OnBtnExit">
+                        <FontIcon Glyph="&#xE946;" FontSize="15" FontFamily="{ThemeResource SymbolThemeFontFamily}" Foreground="White"/>
+                    </Border>
+                    <Border Width="36" Height="36" CornerRadius="18" Tapped="OnSaveAsTap" Background="Transparent" PointerEntered="OnBtnEnter" PointerExited="OnBtnExit">
+                        <FontIcon Glyph="&#xE74E;" FontSize="15" FontFamily="{ThemeResource SymbolThemeFontFamily}" Foreground="White"/>
+                    </Border>
+                    <Border Width="36" Height="36" CornerRadius="18" Tapped="OnShareTap" Background="Transparent" PointerEntered="OnBtnEnter" PointerExited="OnBtnExit">
+                        <FontIcon Glyph="&#xE72D;" FontSize="15" FontFamily="{ThemeResource SymbolThemeFontFamily}" Foreground="White"/>
+                    </Border>
+                    <Border Width="36" Height="36" CornerRadius="18" Tapped="OnSlideshowTap" Background="Transparent" PointerEntered="OnBtnEnter" PointerExited="OnBtnExit">
+                        <FontIcon Glyph="&#xE768;" FontSize="15" FontFamily="{ThemeResource SymbolThemeFontFamily}" Foreground="White"/>
+                    </Border>
+                    <Border Width="36" Height="36" CornerRadius="18" Tapped="OnMoreTap" Background="Transparent" PointerEntered="OnBtnEnter" PointerExited="OnBtnExit">
+                        <FontIcon Glyph="&#xE712;" FontSize="15" FontFamily="{ThemeResource SymbolThemeFontFamily}" Foreground="White"/>
+                    </Border>
+                    <Border Width="1" Height="24" Background="#40FFFFFF" Margin="6,6,6,6"/>
+                    <TextBlock x:Name="CounterLabel" FontSize="12" Foreground="#AAFFFFFF" VerticalAlignment="Center" Margin="4,0,4,0"/>
+                </StackPanel>
+            </Border>
+
+            <!-- ============ EXIF PANEL (right side overlay) ============ -->
+            <Border x:Name="ExifPanel" HorizontalAlignment="Right" VerticalAlignment="Center"
+                    Width="300" MaxHeight="500" Padding="16" CornerRadius="12"
+                    Visibility="Collapsed" Margin="0,0,20,0">
+                <Border.Background>
+                    <AcrylicBrush TintColor="Black" TintOpacity="0.4" FallbackColor="#80000000"/>
+                </Border.Background>
+                <ScrollViewer>
+                    <StackPanel x:Name="ExifContent" Spacing="6">
+                        <TextBlock Text="EXIF DATA" FontSize="12" Foreground="#64B5F6" FontWeight="SemiBold"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+        </Grid>
+
+        <!-- ============ FILMSTRIP (Row 1) ============ -->
+        <Border x:Name="FilmstripBorder" Grid.Row="1" Height="68" BorderThickness="0,1,0,0" BorderBrush="#40FFFFFF">
+            <Border.Background>
+                <AcrylicBrush TintColor="Black" TintOpacity="0.5" FallbackColor="#CC000000"/>
+            </Border.Background>
+            <controls:Filmstrip x:Name="Strip" Margin="10,6,10,6"/>
+        </Border>
+
+        <!-- ============ INFO STRIP (Row 2) ============ -->
+        <Border x:Name="InfoStrip" Grid.Row="2"  Padding="16,6">
+            <Border.Background>
+                <AcrylicBrush TintColor="Black" TintOpacity="0.5" FallbackColor="#CC000000"/>
+            </Border.Background>
+            <Grid ColumnSpacing="16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" x:Name="InfoDimensions" FontSize="11" Foreground="#88FFFFFF"/>
+                <TextBlock Grid.Column="1" x:Name="InfoSize" FontSize="11" Foreground="#88FFFFFF"/>
+                <TextBlock Grid.Column="2" x:Name="InfoFormat" FontSize="11" Foreground="#88FFFFFF"/>
+                <TextBlock Grid.Column="3" x:Name="InfoDate" FontSize="11" Foreground="#88FFFFFF"/>
+                <TextBlock Grid.Column="4" x:Name="InfoFileName" FontSize="11" Foreground="#88FFFFFF"/>
+                <TextBlock Grid.Column="5" x:Name="InfoPath" FontSize="11" Foreground="#666666" TextTrimming="CharacterEllipsis" MaxWidth="400"/>
+            </Grid>
+        </Border>
+    </Grid>
+</Page>

@@ -1,0 +1,357 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Photon.Views.EditPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:Photon.Controls"
+    xmlns:local="using:Photon.Views"
+    xmlns:skia="using:SkiaSharp.Views.Windows"
+    Loaded="OnPageLoaded"
+    Background="#1A1A1A">
+
+    <!--
+        ICON FIX: every FontIcon in this file previously had no FontFamily
+        set, so it silently fell back to the default UI font and rendered
+        as an empty box (that's the "all icons are messed up" bug in the
+        top bar screenshot). This implicit style makes it impossible to
+        forget going forward.
+    -->
+    <Page.Resources>
+        <Style TargetType="FontIcon">
+            <Setter Property="FontFamily" Value="Segoe Fluent Icons"/>
+        </Style>
+
+        <Style x:Key="CropHandleStyle" TargetType="Thumb">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Thumb">
+                        <Grid Background="Transparent">
+                            <!-- oversized transparent hit-area so small handles are easy to grab -->
+                            <Border Width="16" Height="16" Background="White" CornerRadius="3"
+                                    BorderBrush="Black" BorderThickness="1"/>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Page.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="48"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Top toolbar -->
+        <Border Grid.Row="0" Background="#1E1E1E" Padding="8,0" BorderBrush="#2A2A2A" BorderThickness="0,0,0,1">
+            <Grid ColumnSpacing="4">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0" Width="36" Height="36" CornerRadius="6"
+                        Background="Transparent" Tapped="OnBackClick"
+                        PointerEntered="OnToolBtnEnter" PointerExited="OnToolBtnExit"
+                        ToolTipService.ToolTip="Back">
+                    <!-- Back = E72B. (Old code used E70D, which is "ChevronDown" — not Back.) -->
+                    <FontIcon Glyph="&#xE72B;" FontSize="14" Foreground="White"/>
+                </Border>
+
+                <TextBlock Grid.Column="1" x:Name="TitleLabel"
+                           VerticalAlignment="Center" FontSize="13"
+                           Foreground="#CCFFFFFF" TextTrimming="CharacterEllipsis" Margin="8,0,0,0"/>
+
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="2">
+                    <Border Width="36" Height="36" CornerRadius="6" Background="Transparent"
+                            Tapped="OnRotateLeftTap" ToolTipService.ToolTip="Rotate Left"
+                            PointerEntered="OnToolBtnEnter" PointerExited="OnToolBtnExit">
+                        <!-- Rotate = E7AD, mirrored for "left". -->
+                        <FontIcon Glyph="&#xE7AD;" FontSize="14" Foreground="White">
+                            <FontIcon.RenderTransform>
+                                <ScaleTransform ScaleX="-1" CenterX="7"/>
+                            </FontIcon.RenderTransform>
+                        </FontIcon>
+                    </Border>
+                    <Border Width="36" Height="36" CornerRadius="6" Background="Transparent"
+                            Tapped="OnRotateRightTap" ToolTipService.ToolTip="Rotate Right"
+                            PointerEntered="OnToolBtnEnter" PointerExited="OnToolBtnExit">
+                        <!-- Rotate = E7AD. (Old code used E7AC, "OpenWith" — a 4-way move icon, not rotate.) -->
+                        <FontIcon Glyph="&#xE7AD;" FontSize="14" Foreground="White"/>
+                    </Border>
+                    <Border Width="36" Height="36" CornerRadius="6" Background="Transparent"
+                            Tapped="OnFlipHorizontalTap" ToolTipService.ToolTip="Flip Horizontal"
+                            PointerEntered="OnToolBtnEnter" PointerExited="OnToolBtnExit">
+                        <!-- Orientation = E8B4. (Old code used E8C2, "MailReplyAll" — an email icon.) -->
+                        <FontIcon Glyph="&#xE8B4;" FontSize="14" Foreground="White"/>
+                    </Border>
+                    <Border Width="36" Height="36" CornerRadius="6" Background="Transparent"
+                            Tapped="OnFlipVerticalTap" ToolTipService.ToolTip="Flip Vertical"
+                            PointerEntered="OnToolBtnEnter" PointerExited="OnToolBtnExit">
+                        <FontIcon Glyph="&#xE8B4;" FontSize="14" Foreground="White">
+                            <FontIcon.RenderTransform>
+                                <RotateTransform Angle="90" CenterX="7" CenterY="7"/>
+                            </FontIcon.RenderTransform>
+                        </FontIcon>
+                    </Border>
+                    <Border Width="1" Height="24" Background="#333333" Margin="6,6,6,6"/>
+                    <Border Width="36" Height="36" CornerRadius="6" Background="Transparent"
+                            Tapped="OnResetClick" ToolTipService.ToolTip="Reset All"
+                            PointerEntered="OnToolBtnEnter" PointerExited="OnToolBtnExit">
+                        <!-- Refresh = E72C. -->
+                        <FontIcon Glyph="&#xE72C;" FontSize="14" Foreground="#FF8B8B"/>
+                    </Border>
+                    <Border Width="36" Height="36" CornerRadius="6" Background="Transparent"
+                            Tapped="OnSaveAsClick" ToolTipService.ToolTip="Save As...">
+                        <!-- SaveAs = E792 (distinct glyph from plain Save). -->
+                        <FontIcon Glyph="&#xE792;" FontSize="14" Foreground="#8BC34A"/>
+                    </Border>
+                    <Border Width="36" Height="36" CornerRadius="6" Background="Transparent"
+                            Tapped="OnCompressSave" ToolTipService.ToolTip="Compress &amp; Save"
+                            PointerEntered="OnToolBtnEnter" PointerExited="OnToolBtnExit">
+                        <!-- Package = E7B8. (Old code used E950, "Component" — unrelated to compression.) -->
+                        <FontIcon Glyph="&#xE7B8;" FontSize="14" Foreground="#64B5F6"/>
+                    </Border>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="360"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Image canvas -->
+            <Grid Grid.Column="0" Background="Black">
+                <!-- Pan/zoom preview — used for every tab except Crop. -->
+                <controls:ZoomCanvas x:Name="Zoom"/>
+
+                <!--
+                    CROP STAGE: a dedicated, un-panned "fit to view" surface that
+                    only shows while the Crop tab is active. Interactive crop needs
+                    a stable, known mapping from screen pixels to image-normalized
+                    (0..1) coordinates; reusing the pan/zoom surface for that would
+                    mean re-deriving that mapping through an arbitrary zoom/pan
+                    transform on every drag frame. Fitting the full image with
+                    Stretch-equivalent "uniform" math (see OnCropStageSizeChanged /
+                    ImageRectInCanvas in the code-behind) keeps the math trivial and
+                    the drag handles perfectly glued to the image edges.
+                -->
+                <Grid x:Name="CropStage" Visibility="Collapsed" SizeChanged="OnCropStageSizeChanged">
+                    <skia:SKXamlCanvas x:Name="CropCanvas" PaintSurface="OnCropCanvasPaintSurface"/>
+
+                    <Canvas x:Name="CropHandleCanvas" Background="Transparent">
+                        <Rectangle x:Name="DimTop" Fill="#8C000000" IsHitTestVisible="False"/>
+                        <Rectangle x:Name="DimBottom" Fill="#8C000000" IsHitTestVisible="False"/>
+                        <Rectangle x:Name="DimLeft" Fill="#8C000000" IsHitTestVisible="False"/>
+                        <Rectangle x:Name="DimRight" Fill="#8C000000" IsHitTestVisible="False"/>
+
+                        <Rectangle x:Name="RuleThirdV1" Stroke="#88FFFFFF" StrokeThickness="1" IsHitTestVisible="False"/>
+                        <Rectangle x:Name="RuleThirdV2" Stroke="#88FFFFFF" StrokeThickness="1" IsHitTestVisible="False"/>
+                        <Rectangle x:Name="RuleThirdH1" Stroke="#88FFFFFF" StrokeThickness="1" IsHitTestVisible="False"/>
+                        <Rectangle x:Name="RuleThirdH2" Stroke="#88FFFFFF" StrokeThickness="1" IsHitTestVisible="False"/>
+
+                        <Rectangle x:Name="CropBorder" Stroke="White" StrokeThickness="2" Fill="Transparent" IsHitTestVisible="False"/>
+
+                        <!-- Drag the whole crop rect -->
+                        <Thumb x:Name="MoveThumb" Background="Transparent" DragDelta="OnMoveThumbDrag" />
+                        <!--Cursor="SizeAll"-->
+
+                        <!-- 8 resize handles -->
+                        <Thumb x:Name="HandleTL" Width="16" Height="16" DragDelta="OnHandleDrag" Tag="TL" Style="{StaticResource CropHandleStyle}"/>
+                        <Thumb x:Name="HandleTR" Width="16" Height="16" DragDelta="OnHandleDrag" Tag="TR" Style="{StaticResource CropHandleStyle}"/>
+                        <Thumb x:Name="HandleBL" Width="16" Height="16" DragDelta="OnHandleDrag" Tag="BL" Style="{StaticResource CropHandleStyle}"/>
+                        <Thumb x:Name="HandleBR" Width="16" Height="16" DragDelta="OnHandleDrag" Tag="BR" Style="{StaticResource CropHandleStyle}"/>
+                        <Thumb x:Name="HandleT"  Width="16" Height="16" DragDelta="OnHandleDrag" Tag="T"  Style="{StaticResource CropHandleStyle}"/>
+                        <Thumb x:Name="HandleB"  Width="16" Height="16" DragDelta="OnHandleDrag" Tag="B"  Style="{StaticResource CropHandleStyle}"/>
+                        <Thumb x:Name="HandleL"  Width="16" Height="16" DragDelta="OnHandleDrag" Tag="L"  Style="{StaticResource CropHandleStyle}"/>
+                        <Thumb x:Name="HandleR"  Width="16" Height="16" DragDelta="OnHandleDrag" Tag="R"  Style="{StaticResource CropHandleStyle}"/>
+                    </Canvas>
+                </Grid>
+            </Grid>
+
+            <!-- Right panel -->
+            <Border Grid.Column="1" Background="#1E1E1E" BorderBrush="#2A2A2A" BorderThickness="1,0,0,0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="44"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Tab bar -->
+                    <Grid Grid.Row="0" Background="#161616">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/><ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/><ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Border x:Name="TabCrop" Grid.Column="0" Height="44" Tapped="OnTabCropTap"
+                                Background="#2D2D2D" PointerEntered="OnTabEnter" PointerExited="OnTabExit"
+                                ToolTipService.ToolTip="Crop &amp; Rotate">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="6">
+                                <!-- Crop = E7A8. (Old code used E70F, "Edit" — a pencil.) -->
+                                <FontIcon Glyph="&#xE7A8;" FontSize="14" Foreground="White"/>
+                                <TextBlock Text="Crop" FontSize="12" Foreground="White" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                        <Border x:Name="TabAdjust" Grid.Column="1" Height="44" Tapped="OnTabAdjustTap"
+                                Background="Transparent" PointerEntered="OnTabEnter" PointerExited="OnTabExit"
+                                ToolTipService.ToolTip="Adjust">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="6">
+                                <!-- Brightness = E706 — reads as "light/exposure sliders". -->
+                                <FontIcon Glyph="&#xE706;" FontSize="14" Foreground="#AAFFFFFF"/>
+                                <TextBlock Text="Adjust" FontSize="12" Foreground="#AAFFFFFF" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                        <Border x:Name="TabFilters" Grid.Column="2" Height="44" Tapped="OnTabFiltersTap"
+                                Background="Transparent" PointerEntered="OnTabEnter" PointerExited="OnTabExit"
+                                ToolTipService.ToolTip="Filters">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="6">
+                                <!-- Filter = E71C. (Old code used E7BC, "ReadingList".) -->
+                                <FontIcon Glyph="&#xE71C;" FontSize="14" Foreground="#AAFFFFFF"/>
+                                <TextBlock Text="Filters" FontSize="12" Foreground="#AAFFFFFF" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                        <Border x:Name="TabConvert" Grid.Column="3" Height="44" Tapped="OnTabConvertTap"
+                                Background="Transparent" PointerEntered="OnTabEnter" PointerExited="OnTabExit"
+                                ToolTipService.ToolTip="Convert &amp; Export">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="6">
+                                <!-- Sync = E895 — reads as "convert/transform". (Old code used E823, "Recent".) -->
+                                <FontIcon Glyph="&#xE895;" FontSize="14" Foreground="#AAFFFFFF"/>
+                                <TextBlock Text="Export" FontSize="12" Foreground="#AAFFFFFF" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+
+                    <!-- CROP PANEL -->
+                    <ScrollViewer x:Name="PanelCrop" Grid.Row="1" Padding="16,12" Visibility="Visible">
+                        <StackPanel Spacing="10">
+                            <TextBlock Text="Drag the box or its handles directly on the image to crop. The controls below stay in sync." 
+                                       FontSize="11" Foreground="#77FFFFFF" TextWrapping="Wrap"/>
+
+                            <TextBlock Text="ASPECT RATIO" FontSize="11" Foreground="#88FFFFFF" FontWeight="SemiBold" Margin="0,8,0,0"/>
+                            <ComboBox x:Name="AspectCombo" Width="320" SelectionChanged="OnAspectChanged">
+                                <ComboBoxItem Content="Free" Tag="Free"/>
+                                <ComboBoxItem Content="1:1 (Square)" Tag="1:1"/>
+                                <ComboBoxItem Content="4:3" Tag="4:3"/>
+                                <ComboBoxItem Content="3:2" Tag="3:2"/>
+                                <ComboBoxItem Content="16:9" Tag="16:9"/>
+                                <ComboBoxItem Content="3:4 (portrait)" Tag="3:4"/>
+                                <ComboBoxItem Content="2:3 (portrait)" Tag="2:3"/>
+                            </ComboBox>
+
+                            <TextBlock Text="ROTATION" FontSize="11" Foreground="#88FFFFFF" FontWeight="SemiBold" Margin="0,8,0,0"/>
+                            <Grid ColumnSpacing="8">
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                <Slider Grid.Column="0" x:Name="RotationSlider" Minimum="-45" Maximum="45" StepFrequency="0.5" ValueChanged="OnRotationChanged"/>
+                                <TextBlock Grid.Column="1" x:Name="RotationLabel" Text="0.0°" FontSize="12" Foreground="#AAFFFFFF" VerticalAlignment="Center" Width="42"/>
+                            </Grid>
+                            <Button Content="Reset crop &amp; rotation" Click="OnResetCrop" Width="320" Margin="0,4,0,0"/>
+
+                            <Border Height="1" Background="#333333" Margin="0,8"/>
+                            <TextBlock Text="CROP AREA (fine-tune)" FontSize="11" Foreground="#88FFFFFF" FontWeight="SemiBold"/>
+                            <Grid ColumnSpacing="8" RowSpacing="4">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="X:" Foreground="#88FFFFFF" VerticalAlignment="Center"/>
+                                <Slider Grid.Row="0" Grid.Column="1" x:Name="CropXSlider" Minimum="0" Maximum="1" StepFrequency="0.01" ValueChanged="OnCropSliderChanged"/>
+                                <TextBlock Grid.Row="0" Grid.Column="2" Text="W:" Foreground="#88FFFFFF" VerticalAlignment="Center"/>
+                                <Slider Grid.Row="0" Grid.Column="3" x:Name="CropWSlider" Minimum="0.05" Maximum="1" StepFrequency="0.01" ValueChanged="OnCropSliderChanged"/>
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Y:" Foreground="#88FFFFFF" VerticalAlignment="Center"/>
+                                <Slider Grid.Row="1" Grid.Column="1" x:Name="CropYSlider" Minimum="0" Maximum="1" StepFrequency="0.01" ValueChanged="OnCropSliderChanged"/>
+                                <TextBlock Grid.Row="1" Grid.Column="2" Text="H:" Foreground="#88FFFFFF" VerticalAlignment="Center"/>
+                                <Slider Grid.Row="1" Grid.Column="3" x:Name="CropHSlider" Minimum="0.05" Maximum="1" StepFrequency="0.01" ValueChanged="OnCropSliderChanged"/>
+                            </Grid>
+                        </StackPanel>
+                    </ScrollViewer>
+
+                    <!-- ADJUST PANEL -->
+                    <ScrollViewer x:Name="PanelAdjust" Grid.Row="1" Padding="16,12" Visibility="Collapsed">
+                        <StackPanel Spacing="4">
+
+                            <TextBlock Text="LIGHT" FontSize="11" Foreground="#88FFFFFF" FontWeight="SemiBold" Margin="0,0,0,2"/>
+                            <local:AdjustSliderRow x:Name="RowExposure"   Label="Exposure"   Minimum="-1" Maximum="1" SliderChanged="OnAdjustSliderChanged"/>
+                            <local:AdjustSliderRow x:Name="RowBrightness" Label="Brightness" Minimum="-1" Maximum="1" SliderChanged="OnAdjustSliderChanged"/>
+                            <local:AdjustSliderRow x:Name="RowContrast"   Label="Contrast"   Minimum="-1" Maximum="1" SliderChanged="OnAdjustSliderChanged"/>
+                            <local:AdjustSliderRow x:Name="RowHighlights" Label="Highlights" Minimum="-1" Maximum="1" SliderChanged="OnAdjustSliderChanged"/>
+                            <local:AdjustSliderRow x:Name="RowShadows"    Label="Shadows"    Minimum="-1" Maximum="1" SliderChanged="OnAdjustSliderChanged"/>
+
+                            <Border Height="1" Background="#333333" Margin="0,8"/>
+                            <TextBlock Text="COLOR" FontSize="11" Foreground="#88FFFFFF" FontWeight="SemiBold" Margin="0,0,0,2"/>
+                            <local:AdjustSliderRow x:Name="RowSaturation" Label="Saturation" Minimum="-1" Maximum="1" SliderChanged="OnAdjustSliderChanged"/>
+                            <local:AdjustSliderRow x:Name="RowVibrance"   Label="Vibrance"   Minimum="-1" Maximum="1" SliderChanged="OnAdjustSliderChanged"/>
+                            <local:AdjustSliderRow x:Name="RowWarmth"     Label="Warmth"     Minimum="-1" Maximum="1" SliderChanged="OnAdjustSliderChanged"/>
+                            <local:AdjustSliderRow x:Name="RowTint"       Label="Tint"       Minimum="-1" Maximum="1" SliderChanged="OnAdjustSliderChanged"/>
+
+                            <Border Height="1" Background="#333333" Margin="0,8"/>
+                            <TextBlock Text="DETAIL" FontSize="11" Foreground="#88FFFFFF" FontWeight="SemiBold" Margin="0,0,0,2"/>
+                            <local:AdjustSliderRow x:Name="RowSharpness" Label="Sharpness" Minimum="0" Maximum="1" SliderChanged="OnAdjustSliderChanged"/>
+                            <local:AdjustSliderRow x:Name="RowClarity"   Label="Clarity"   Minimum="-1" Maximum="1" SliderChanged="OnAdjustSliderChanged"/>
+
+                            <Border Height="1" Background="#333333" Margin="0,8"/>
+                            <TextBlock Text="EFFECTS" FontSize="11" Foreground="#88FFFFFF" FontWeight="SemiBold" Margin="0,0,0,2"/>
+                            <local:AdjustSliderRow x:Name="RowVignette" Label="Vignette" Minimum="0" Maximum="1" SliderChanged="OnAdjustSliderChanged"/>
+                            <local:AdjustSliderRow x:Name="RowGrain"    Label="Grain"    Minimum="0" Maximum="1" SliderChanged="OnAdjustSliderChanged"/>
+
+                            <Button Content="Reset adjustments" Click="OnResetAdjust" Width="320" Margin="0,10,0,0"/>
+                        </StackPanel>
+                    </ScrollViewer>
+
+                    <!-- FILTERS PANEL -->
+                    <ScrollViewer x:Name="PanelFilters" Grid.Row="1" Padding="16,12" Visibility="Collapsed">
+                        <GridView x:Name="FilterGrid" ItemsSource="{x:Bind FilterPreviewVms, Mode=OneWay}"
+                                  SelectionMode="Single" SelectionChanged="OnFilterSelected">
+                            <GridView.ItemTemplate>
+                                <DataTemplate x:DataType="local:FilterPreviewVm">
+                                    <StackPanel Width="76" Spacing="4">
+                                        <Border Width="72" Height="72" CornerRadius="6" BorderThickness="2" BorderBrush="#444444">
+                                            <Image Source="{x:Bind Preview, Mode=OneWay}" Stretch="UniformToFill"/>
+                                        </Border>
+                                        <TextBlock Text="{x:Bind Name}" HorizontalAlignment="Center"
+                                                   FontSize="11" Foreground="#CCFFFFFF" TextTrimming="CharacterEllipsis"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </GridView.ItemTemplate>
+                        </GridView>
+                    </ScrollViewer>
+
+                    <!-- CONVERT PANEL -->
+                    <ScrollViewer x:Name="PanelConvert" Grid.Row="1" Padding="16,12" Visibility="Collapsed">
+                        <StackPanel Spacing="10">
+                            <TextBlock Text="FORMAT" FontSize="11" Foreground="#88FFFFFF" FontWeight="SemiBold"/>
+                            <ComboBox x:Name="ConvertFormatCombo" Width="320" SelectedIndex="0">
+                                <ComboBoxItem Content="JPEG" Tag="JPEG"/>
+                                <ComboBoxItem Content="PNG" Tag="PNG"/>
+                                <ComboBoxItem Content="WebP" Tag="WebP"/>
+                                <ComboBoxItem Content="BMP" Tag="BMP"/>
+                            </ComboBox>
+                            <TextBlock Text="QUALITY (LOSSY)" FontSize="11" Foreground="#88FFFFFF" FontWeight="SemiBold" Margin="0,8,0,0"/>
+                            <Slider x:Name="ConvertQualitySlider" Minimum="10" Maximum="100" StepFrequency="1" Value="90" Width="320"/>
+                            <TextBlock Text="MAX WIDTH (px)" FontSize="11" Foreground="#88FFFFFF" FontWeight="SemiBold" Margin="0,8,0,0"/>
+                            <TextBox x:Name="ConvertMaxWidthBox" PlaceholderText="e.g. 1920" Width="320"/>
+                            <TextBlock Text="MAX HEIGHT (px)" FontSize="11" Foreground="#88FFFFFF" FontWeight="SemiBold" Margin="0,8,0,0"/>
+                            <TextBox x:Name="ConvertMaxHeightBox" PlaceholderText="e.g. 1080" Width="320"/>
+                            <CheckBox x:Name="ConvertStripMetaCheck" Content="Strip metadata" Foreground="White" Margin="0,8,0,0"/>
+                            <CheckBox x:Name="ConvertKeepProfileCheck" Content="Preserve color profile" IsChecked="True" Foreground="White"/>
+                            <Border Height="1" Background="#333333" Margin="0,8"/>
+                            <TextBlock Text="TARGET SIZE (KB)" FontSize="11" Foreground="#88FFFFFF" FontWeight="SemiBold"/>
+                            <TextBlock Text="Leave empty to use quality slider." FontSize="11" Foreground="#666666"/>
+                            <TextBox x:Name="CompressTargetKBBox" PlaceholderText="e.g. 200" Width="320" InputScope="Number"/>
+                        </StackPanel>
+                    </ScrollViewer>
+
+                    <!-- Status bar -->
+                    <Border Grid.Row="2" BorderBrush="#333333" BorderThickness="0,1,0,0" Padding="16,8" Background="#161616">
+                        <TextBlock x:Name="OutputPreviewLabel" Foreground="#666666" FontSize="11" TextWrapping="Wrap"/>
+                    </Border>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</Page>

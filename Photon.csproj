@@ -1,0 +1,75 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<WindowsPackageType>MSIX</WindowsPackageType>
+		<TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+		<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+		<TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+		<RootNamespace>Photon</RootNamespace>
+		<Platforms>x86;x64;ARM64</Platforms>
+		<!-- Default to x64 so `dotnet build` works without choosing a solution platform. -->
+		<Platform Condition="'$(Platform)' == ''">x64</Platform>
+		<RuntimeIdentifier Condition="('$(Platform)' == 'AnyCPU' Or '$(Platform)' == 'Any CPU') And '$(RuntimeIdentifier)' == ''">win-x64</RuntimeIdentifier>
+		<RuntimeIdentifiers>win-x86;win-x64;win-arm64</RuntimeIdentifiers>
+		<UseWinUI>true</UseWinUI>
+		<WinUISDKReferences>false</WinUISDKReferences>
+		<EnableMsixTooling>true</EnableMsixTooling>
+		<Nullable>enable</Nullable>
+		<LangVersion>latest</LangVersion>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<ApplicationTitle>Photon</ApplicationTitle>
+	</PropertyGroup>
+	<ItemGroup>
+		<Content Include="AppIcon_photo2.ico" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.28000.2270" />
+		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.6.250108002" />
+		<PackageReference Include="SkiaSharp" Version="2.88.9" />
+		<PackageReference Include="SkiaSharp.Views.WinUI" Version="2.88.9" />
+		<PackageReference Include="SixLabors.ImageSharp" Version="3.1.7" />
+		<PackageReference Include="MetadataExtractor" Version="2.8.1" />
+		<PackageReference Include="Magick.NET-Q16-AnyCPU" Version="14.4.0" />
+		<PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.19.0" />
+		<PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.12" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1" />
+		<PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.1" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.1" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Manifest Include="$(ApplicationManifest)" />
+	</ItemGroup>
+
+	<!--
+    Defining the "Msix" ProjectCapability here allows the Single-project MSIX Packaging
+    Tools extension to be activated for this project even if the Windows App SDK NuGet
+    package has not yet been restored.
+  -->
+	<ItemGroup Condition="'$(DisableMsixProjectCapabilityAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
+		<ProjectCapability Include="Msix" />
+	</ItemGroup>
+
+	<PropertyGroup Condition="'$(DisableHasPackageAndPublishMenuAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
+		<HasPackageAndPublishMenu>true</HasPackageAndPublishMenu>
+	</PropertyGroup>
+
+	<!-- Publish Properties -->
+	<PropertyGroup>
+		<PublishReadyToRun Condition="'$(Configuration)' == 'Debug'">False</PublishReadyToRun>
+		<!-- Not forced to True anymore: ReadyToRun needs a restorable runtime pack
+         for the target RID, which isn't always available (e.g. win-arm64
+         framework-dependent hit NETSDK1094). Each publish profile's own
+         "Enable ReadyToRun compilation" checkbox now controls this instead. -->
+		<!-- Trimming only applies to self-contained publishes. Rather than forcing
+         SelfContained globally (which breaks Framework-dependent profiles like
+         FolderProfile/ARM64), only trim when a profile has actually opted into
+         SelfContained=true. This avoids NETSDK1102 without overriding your
+         per-profile deployment mode choice. -->
+		<PublishTrimmed Condition="'$(Configuration)' != 'Debug' AND '$(SelfContained)' == 'true'">True</PublishTrimmed>
+		<PublishTrimmed Condition="'$(Configuration)' == 'Debug' OR '$(SelfContained)' != 'true'">False</PublishTrimmed>
+		<ApplicationIcon>AppIcon_photo2.ico</ApplicationIcon>
+		<ApplicationManifest>app.manifest</ApplicationManifest>
+	</PropertyGroup>
+</Project>

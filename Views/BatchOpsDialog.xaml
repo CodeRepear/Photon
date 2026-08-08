@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ContentDialog
+    x:Class="Photon.Views.BatchOpsDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Title="Batch operations"
+    PrimaryButtonText="Run"
+    CloseButtonText="Cancel"
+    PrimaryButtonClick="OnPrimaryClick">
+
+    <StackPanel Spacing="12" Width="480">
+        <TextBlock x:Name="SelectionLabel" Style="{StaticResource CaptionTextBlockStyle}"
+                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+
+        <Pivot x:Name="OpPivot">
+            <PivotItem Header="Rename">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Pattern (use {n} for sequence number, {date} for capture date)" Style="{StaticResource CaptionTextBlockStyle}"/>
+                    <TextBox x:Name="RenamePatternBox" PlaceholderText="Photon_{n:000}.jpg" Text="Photon_{n:000}"/>
+                    <TextBlock Text="Start at" Style="{StaticResource CaptionTextBlockStyle}"/>
+                    <TextBox x:Name="RenameStartBox" PlaceholderText="1" Text="1" InputScope="Number"/>
+                    <CheckBox x:Name="RenameKeepExtCheck" Content="Keep original extension" IsChecked="True"/>
+                </StackPanel>
+            </PivotItem>
+
+            <PivotItem Header="Convert">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Target format" Style="{StaticResource CaptionTextBlockStyle}"/>
+                    <ComboBox x:Name="ConvertFmtCombo" SelectedIndex="0">
+                        <ComboBoxItem Content="JPEG" Tag="JPEG"/>
+                        <ComboBoxItem Content="PNG" Tag="PNG"/>
+                        <ComboBoxItem Content="WebP" Tag="WebP"/>
+                        <ComboBoxItem Content="BMP" Tag="BMP"/>
+                    </ComboBox>
+                    <TextBlock Text="Quality (1-100, ignored for PNG)" Style="{StaticResource CaptionTextBlockStyle}"/>
+                    <Slider x:Name="ConvertQualSlider" Minimum="10" Maximum="100" Value="90"/>
+                    <TextBlock Text="Max width (px, optional)" Style="{StaticResource CaptionTextBlockStyle}"/>
+                    <TextBox x:Name="ConvertMaxWBox" PlaceholderText="e.g. 1920"/>
+                    <TextBlock Text="Max height (px, optional)" Style="{StaticResource CaptionTextBlockStyle}"/>
+                    <TextBox x:Name="ConvertMaxHBox" PlaceholderText="e.g. 1080"/>
+                    <CheckBox x:Name="ConvertStripMetaCheck" Content="Strip EXIF / GPS"/>
+                </StackPanel>
+            </PivotItem>
+
+            <PivotItem Header="Resize">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Mode" Style="{StaticResource CaptionTextBlockStyle}"/>
+                    <RadioButton x:Name="ResizeByPctRadio" Content="By percentage" GroupName="ResizeMode" IsChecked="True"/>
+                    <RadioButton x:Name="ResizeByPxRadio" Content="By max dimension (px)" GroupName="ResizeMode"/>
+                    <TextBox x:Name="ResizePctBox" PlaceholderText="50" Text="50" InputScope="Number"/>
+                    <TextBox x:Name="ResizePxBox" PlaceholderText="1920" InputScope="Number" IsEnabled="False"/>
+                </StackPanel>
+            </PivotItem>
+        </Pivot>
+
+        <Border Height="1" Background="{ThemeResource DividerStrokeColorDefaultBrush}"/>
+
+        <TextBlock x:Name="ProgressLabel" Text="" Style="{StaticResource CaptionTextBlockStyle}"
+                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+        <ProgressBar x:Name="Progress" Visibility="Collapsed" Maximum="100"/>
+    </StackPanel>
+</ContentDialog>

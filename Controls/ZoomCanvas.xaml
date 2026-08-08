@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="Photon.Controls.ZoomCanvas"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:sk="using:SkiaSharp.Views.Windows"
+    Background="Transparent"
+    TabNavigation="Local">
+
+    <Grid>
+        <sk:SKXamlCanvas
+            x:Name="SkiaCanvas"
+            PaintSurface="OnPaintSurface"
+            SizeChanged="OnSizeChanged"/>
+        <Border
+            x:Name="ZoomIndicator"
+            Visibility="Collapsed"
+            HorizontalAlignment="Right"
+            VerticalAlignment="Bottom"
+            Margin="0,0,16,16"
+            Padding="10,4,10,4"
+            CornerRadius="4"
+            Background="{ThemeResource AcrylicInAppFillColorDefaultBrush}"
+            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+            BorderThickness="1">
+            <TextBlock x:Name="ZoomLabel" FontFamily="Cascadia Code" FontSize="12"/>
+        </Border>
+    </Grid>
+</UserControl>
